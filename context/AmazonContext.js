@@ -1,12 +1,20 @@
 import { createContext, useState, useEffect } from 'react'
 import { useMoralis, useMoralisQuery } from 'react-moralis'
+import { amazonAbi, amazonCoinAddress } from '../lib/constants'
+import { ethers } from 'ethers'
 
 export const AmazonContext = createContext()
 
 export const AmazonProvider = ({ children }) => {
+  const [currentAccount, setCurrentAccount] = useState('')
   const [nickname, setNickname] = useState('')
   const [username, setUsername] = useState('')
   const [assets, setAssets] = useState([])
+  const [tokenAmount, setTokenAmount] = useState('')
+  const [amountDue, setAmountDue] = useState('')
+  const [etherscanLink, setEtherscanLink] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [balance, setBalance] = useState('')
 
   const {
     authenticate,
