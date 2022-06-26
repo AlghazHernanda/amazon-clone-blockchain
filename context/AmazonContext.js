@@ -6,6 +6,7 @@ export const AmazonContext = createContext()
 export const AmazonProvider = ({ children }) => {
   const [nickname, setNickname] = useState('')
   const [username, setUsername] = useState('')
+  const [assets, setAssets] = useState([])
 
   const {
     authenticate,
@@ -15,6 +16,12 @@ export const AmazonProvider = ({ children }) => {
     user,
     isWeb3Enabled,
   } = useMoralis()
+
+  const {
+    data: assetsData,
+    error: assetsDataError,
+    isLoading: assetsDataIsLoading,
+  } = useMoralisQuery('Assets')
 
   useEffect(() => {
     ;(async() => {
@@ -49,6 +56,14 @@ export const AmazonProvider = ({ children }) => {
     username,
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      if(isWeb3Enabled){
+        await getAssets()
+      }
+    })()
+  }, [isWeb3Enabled, assetsDataIsLoading, assetsData])
+
   const handleSetUsername = () => {
     if (user) {
       if (nickname) {
@@ -62,6 +77,19 @@ export const AmazonProvider = ({ children }) => {
       console.log('No user')
     }
   }
+
+  const getAssets = async () => {
+    try {
+      await enableWeb3()
+      // const query = new Moralis.Query('Assets')
+      // const results = await query.find()
+
+      setAssets(assetsData)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 
 
 
@@ -88,7 +116,7 @@ export const AmazonProvider = ({ children }) => {
             username,
             // setUsername,
             handleSetUsername,
-            // assets,
+            assets,
             // recentTransactions,
             // ownedItems,
           }}
