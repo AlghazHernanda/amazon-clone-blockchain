@@ -13,6 +13,7 @@ import {
     ModalTransition,
   } from 'react-simple-hook-modal'
   import 'react-simple-hook-modal/dist/styles.css'
+import BuyModal from './BuyModal'
 //   import BuyModal from './BuyModal'
 
 const balance = "99"
@@ -60,7 +61,9 @@ const Header = () => {
               {balance}
               <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                {/* <BuyModal close={closeModal} buyTokens={buyTokens} /> */}
+                <BuyModal close={closeModal}  />
+                {/* buyTokens={buyTokens}
+buyTokens={buyTokens} */}
               </Modal>
             </div>
           ) : (
@@ -70,7 +73,7 @@ const Header = () => {
             >
               0 AC <FaCoins className={styles.coins} />
               <Modal isOpen={isModalOpen} transition={ModalTransition.SCALE}>
-                {/* <BuyModal close={closeModal} buyTokens={buyTokens} /> */}
+                <BuyModal close={closeModal}  />
               </Modal>
             </div>
           )}

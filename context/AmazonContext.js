@@ -39,11 +39,11 @@ export const AmazonProvider = ({ children }) => {
     // await listenToUpdates()
 
     if (isAuthenticated) {
-      // await getBalance()
+      await getBalance()
       const currentUsername = await user?.get('nickname')
       setUsername(currentUsername)
-      // const account = await user?.get('ethAddress')
-      // setCurrentAccount(account)
+      const account = await user?.get('ethAddress')
+      setCurrentAccount(account)
       // const formatAccount = account.slice(0, 5) + '...' + account.slice(-5)
       // setFormattedAccount(formatAccount)
     } })()
@@ -58,7 +58,7 @@ export const AmazonProvider = ({ children }) => {
     // balance,
     // setBalance,
     // authenticate,
-    // currentAccount,
+    currentAccount,
     // setUsername,
     user,
     username,
@@ -86,6 +86,57 @@ export const AmazonProvider = ({ children }) => {
     }
   }
 
+  const getBalance = async () => {
+    try {
+      if (!isAuthenticated || !currentAccount) return
+      const options = {
+        contractAddress: amazonCoinAddress,
+        functionName: 'balanceOf',
+        abi: amazonAbi,
+        params: {
+          account: currentAccount,
+        },
+      }
+
+      if (isWeb3Enabled) {
+        const response = await Moralis.executeFunction(options)
+        // console.log(response.toString())
+        setBalance(response.toString())
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const buyTokens = async () => {
+    if (!isAuthenticated) {
+      await connectWallet()
+    }
+
+    const amount = ethers.BigNumber.from(tokenAmount)
+    const price = ethers.BigNumber.from('100000000000000')
+    const calcPrice = amount.mul(price)
+
+    console.log(amazonCoinAddress)
+
+    let options = {
+      contractAddress: amazonCoinAddress,
+      functionName: 'mint',
+      abi: amazonAbi,
+      msgValue: calcPrice,
+      params: {
+        amount,
+      },
+    }
+    const transaction = await Moralis.executeFunction(options)
+    const receipt = await transaction.wait()
+    setIsLoading(false)
+    console.log(receipt)
+    setEtherscanLink(
+      `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
+    )
+  }
+
   const getAssets = async () => {
     try {
       await enableWeb3()
@@ -106,19 +157,19 @@ export const AmazonProvider = ({ children }) => {
           value={{
             // formattedAccount,
             isAuthenticated,
-            // buyTokens,
+            buyTokens,
             // getBalance,
-            // balance,
+            balance,
             // setTokenAmount,
-            // tokenAmount,
-            // amountDue,
-            // setAmountDue,
-            // isLoading,
-            // setIsLoading,
-            // setEtherscanLink,
-            // etherscanLink,
+            tokenAmount,
+            amountDue,
+            setAmountDue,
+            isLoading,
+            setIsLoading,
+            setEtherscanLink,
+            etherscanLink,
             // buyAsset,
-            // currentAccount,
+            currentAccount,
             nickname,
             setNickname,
             username,
