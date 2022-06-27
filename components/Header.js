@@ -14,13 +14,11 @@ import {
   } from 'react-simple-hook-modal'
   import 'react-simple-hook-modal/dist/styles.css'
 import BuyModal from './BuyModal'
-//   import BuyModal from './BuyModal'
 
-const balance = "99"
 
 const Header = () => {
     const styles = {
-        container: `h-[60px] w-full flex items-center gap-5 px-16`,
+        container: `h-[60px] w-full flex items-center gap-5 px-16 mb-[50px]`,
         logo: `flex items-center ml-[20px] cursor-pointer flex-1`,
         search: `p-[25px] mr-[30px] w-[400px] h-[40px] bg-white rounded-full shadow-lg flex flex items-center border border-black`,
         searchInput: `bg-transparent focus:outline-none border-none flex-1 items-center flex`,
@@ -29,6 +27,7 @@ const Header = () => {
         coins: `ml-[10px]`,
       }
 
+  const { balance, buyTokens, getBalance } = useContext(AmazonContext)
   const { openModal, isModalOpen, closeModal } = useModal()
 
   return (
