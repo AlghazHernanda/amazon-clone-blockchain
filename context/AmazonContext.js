@@ -17,7 +17,7 @@ export const AmazonProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [balance, setBalance] = useState('')
   const [recentTransactions, setRecentTransactions] = useState([])
-  // const [ownedItems, setOwnedItems] = useState([])
+  const [ownedItems, setOwnedItems] = useState([])
 
   const {
     authenticate,
@@ -39,6 +39,17 @@ export const AmazonProvider = ({ children }) => {
     error: assetsDataError,
     isLoading: assetsDataIsLoading,
   } = useMoralisQuery('assets') //harus seusai namanya sama yg di database
+
+  const listenToUpdates = async () => {
+    let query = new Moralis.Query('EthTransactions')
+    let subscription = await query.subscribe()
+    subscription.on('update', async object => {
+      console.log('New Transactions')
+      console.log(object)
+      setRecentTransactions([object])
+    })
+  }
+
 
   const getBalance = async () => {
     try {
@@ -71,6 +82,7 @@ export const AmazonProvider = ({ children }) => {
 
     if (isAuthenticated) {
       await getBalance()
+      await listenToUpdates()
       const currentUsername = await user?.get('nickname')
       setUsername(currentUsername)
       const account = await user?.get('ethAddress')
@@ -90,15 +102,19 @@ export const AmazonProvider = ({ children }) => {
     // setBalance,
     // authenticate,
     currentAccount,
+    getBalance,
     // setUsername,
     user,
     username,
+    listenToUpdates
   ])
 
   useEffect(() => {
     ;(async () => {
       if(isWeb3Enabled){
+        await enableWeb3()
         await getAssets()
+        await getOwnedAssets()
       }
     })()
   }, [isWeb3Enabled, assetsDataIsLoading, assetsData])
@@ -183,15 +199,7 @@ export const AmazonProvider = ({ children }) => {
     )
   }
 
-  const listenToUpdates = async () => {
-    let query = new Moralis.Query('EthTransactions')
-    let subscription = await query.subscribe()
-    subscription.on('update', async object => {
-      console.log('New Transactions')
-      console.log(object)
-      setRecentTransactions([object])
-    })
-  }
+  
 
   const getAssets = async () => {
     try {
@@ -200,6 +208,23 @@ export const AmazonProvider = ({ children }) => {
       // const results = await query.find()
 
       setAssets(assetsData)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getOwnedAssets = async () => {
+    try {
+      // let query = new Moralis.Query('_User')
+      // let results = await query.find()
+
+      if (userData[0]) {
+        //previtems bisa dinamakan apa saja
+        setOwnedItems(prevItems => [
+          ...prevItems,
+          userData[0].attributes.ownedAsset,
+        ])
+      }
     } catch (error) {
       console.log(error)
     }
@@ -214,9 +239,9 @@ export const AmazonProvider = ({ children }) => {
             // formattedAccount,
             isAuthenticated,
             buyTokens,
-            // getBalance,
+            getBalance,
             balance,
-            // setTokenAmount,
+            setTokenAmount,
             tokenAmount,
             amountDue,
             setAmountDue,
@@ -229,11 +254,11 @@ export const AmazonProvider = ({ children }) => {
             nickname,
             setNickname,
             username,
-            // setUsername,
+            setUsername,
             handleSetUsername,
             assets,
-            // recentTransactions,
-            // ownedItems,
+            recentTransactions,
+            ownedItems,
           }}
         >
           {children}
