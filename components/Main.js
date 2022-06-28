@@ -1,5 +1,6 @@
 import React from 'react'
 import Cards from './Cards'
+import Featured from './Featured'
 import Header from './Header'
 
 const Main = () => {
@@ -13,7 +14,7 @@ const Main = () => {
   return (
     <div className={styles.container}>
         <Header />
-        {/* <Featured /> */}
+        <Featured />
         <Cards />
 
     </div>

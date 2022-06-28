@@ -3,6 +3,7 @@ import { useMoralis, useMoralisQuery } from 'react-moralis'
 import { amazonAbi, amazonCoinAddress } from '../lib/constants'
 import { ethers } from 'ethers'
 
+
 export const AmazonContext = createContext()
 
 export const AmazonProvider = ({ children }) => {
@@ -26,10 +27,38 @@ export const AmazonProvider = ({ children }) => {
   } = useMoralis()
 
   const {
+    data: userData,
+    error: userDataError,
+    isLoading: userDataIsLoading,
+  } = useMoralisQuery('_User')
+
+  const {
     data: assetsData,
     error: assetsDataError,
     isLoading: assetsDataIsLoading,
-  } = useMoralisQuery('Assets')
+  } = useMoralisQuery('assets') //harus seusai namanya sama yg di database
+
+  const getBalance = async () => {
+    try {
+      if (!isAuthenticated || !currentAccount) return
+      const options = {
+        contractAddress: amazonCoinAddress,
+        functionName: 'balanceOf',
+        abi: amazonAbi,
+        params: {
+          account: currentAccount,
+        },
+      }
+
+      if (isWeb3Enabled) {
+        const response = await Moralis.executeFunction(options)
+        // console.log(response.toString())
+        setBalance(response.toString())
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     ;(async() => {
@@ -86,25 +115,40 @@ export const AmazonProvider = ({ children }) => {
     }
   }
 
-  const getBalance = async () => {
+  const buyAsset = async (price, asset) => {
     try {
-      if (!isAuthenticated || !currentAccount) return
+      if (!isAuthenticated) return
+      // console.log('price: ', price)
+      // console.log('asset: ', asset.name)
+      // console.log(userData)
+
       const options = {
+        type: 'erc20',
+        amount: price,
+        receiver: amazonCoinAddress,
         contractAddress: amazonCoinAddress,
-        functionName: 'balanceOf',
-        abi: amazonAbi,
-        params: {
-          account: currentAccount,
-        },
       }
 
-      if (isWeb3Enabled) {
-        const response = await Moralis.executeFunction(options)
-        // console.log(response.toString())
-        setBalance(response.toString())
+      let transaction = await Moralis.transfer(options)
+      const receipt = await transaction.wait()
+
+      if (receipt) {
+        //You can do this but it's not necessary with Moralis hooks!
+        // const query = new Moralis.Query('_User')
+        // const results = await query.find()
+
+        const res = userData[0].add('ownedAsset', {
+          ...asset,
+          purchaseDate: Date.now(),
+          etherscanLink: `https://rinkeby.etherscan.io/tx/${receipt.transactionHash}`,
+        })
+
+        await res.save().then(() => {
+          alert("You've successfully purchased this asset!")
+        })
       }
     } catch (error) {
-      console.log(error)
+      console.log(error.message)
     }
   }
 
@@ -168,7 +212,7 @@ export const AmazonProvider = ({ children }) => {
             setIsLoading,
             setEtherscanLink,
             etherscanLink,
-            // buyAsset,
+            buyAsset,
             currentAccount,
             nickname,
             setNickname,
