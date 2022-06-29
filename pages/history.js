@@ -4,6 +4,8 @@ import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
 import { AmazonContext } from '../context/AmazonContext'
 
+import Transaction from '../components/Transaction'
+
 const history = () => {
   const { ownedItems } = useContext(AmazonContext)
 
@@ -29,7 +31,7 @@ const history = () => {
           )}
           <div className={styles.transactions}>
             {ownedItems.map((item, index) => {
-              return <Transaction key={index} item={item} index={index} />
+              // return <Transaction key={index} item={item} index={index} />
             })}
           </div>
         </div>
