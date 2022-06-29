@@ -31,7 +31,7 @@ const history = () => {
           )}
           <div className={styles.transactions}>
             {ownedItems.map((item, index) => {
-              // return <Transaction key={index} item={item} index={index} />
+              return <Transaction key={index} item={item} index={index} />
             })}
           </div>
         </div>
