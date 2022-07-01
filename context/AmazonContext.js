@@ -218,7 +218,7 @@ export const AmazonProvider = ({ children }) => {
       // let query = new Moralis.Query('_User')
       // let results = await query.find()
 
-      if (userData[0].attributes.ownedAsset) {
+      if (userData[0]) {
         //previtems bisa dinamakan apa saja
         setOwnedItems(prevItems => [
           ...prevItems,
